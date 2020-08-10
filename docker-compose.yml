@@ -1,0 +1,27 @@
+version: '3.1'
+
+services:
+  portainer:
+    image: portainer/portainer
+    restart: always
+    container_name: api-console
+    working_dir: /app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/:/data
+    ports:
+      - 9000:9000
+      - 8000:8000
+    networks:
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+      - traefik.http.routers.portainer.rule=PathPrefix(`/portainer`)
+      - traefik.http.routers.portainer.middlewares=portainer-stripprefix
+      - traefik.http.middlewares.portainer-stripprefix.stripprefix.prefixes=/portainer
+
+networks:
+  traefik:
+    external: true
